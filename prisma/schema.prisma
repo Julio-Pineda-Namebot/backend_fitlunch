@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model fit_comida {
+  N_ID_COMIDA        Int                       @id @default(autoincrement())
+  X_NOMBRE_COMIDA    String?                   @db.VarChar(100)
+  X_DESCRIPCION      String?                   @db.Text
+  N_CALORIAS         Int?
+  X_TIPO_COMIDA      fit_comida_X_TIPO_COMIDA?
+  fit_comida_detalle fit_comida_detalle[]
+}
+
+model fit_comida_detalle {
+  N_ID_DETALLE_COMIDA Int               @id @default(autoincrement())
+  N_ID_COMIDA         Int?
+  N_ID_INGREDIENTE    Int?
+  N_CANTIDAD          Float?
+  fit_comida          fit_comida?       @relation(fields: [N_ID_COMIDA], references: [N_ID_COMIDA], onDelete: Restrict, onUpdate: Restrict, map: "fit_comida_detalle_ibfk_1")
+  fit_ingredientes    fit_ingredientes? @relation(fields: [N_ID_INGREDIENTE], references: [N_ID_INGREDIENTE], onDelete: Restrict, onUpdate: Restrict, map: "fit_comida_detalle_ibfk_2")
+
+  @@index([N_ID_COMIDA], map: "N_ID_COMIDA")
+  @@index([N_ID_INGREDIENTE], map: "N_ID_INGREDIENTE")
+}
+
+model fit_costos {
+  N_ID_COSTO_INGREDIENTE  Int               @id @default(autoincrement())
+  N_ID_INGREDIENTE        Int?
+  N_ID_DELIVERY           Int?
+  F_REGISTRO              DateTime?         @db.DateTime(0)
+  N_COSTO_UNIT            Float?
+  N_CANTIDAD              Float?
+  N_SUBTOTAL_INGREDIENTES Float?
+  N_COSTO_TOTAL           Float?
+  fit_ingredientes        fit_ingredientes? @relation(fields: [N_ID_INGREDIENTE], references: [N_ID_INGREDIENTE], onDelete: Restrict, onUpdate: Restrict, map: "fit_costos_ibfk_1")
+
+  @@index([N_ID_INGREDIENTE], map: "N_ID_INGREDIENTE")
+}
+
+model fit_delivery {
+  N_ID_DELIVERY    Int       @id @default(autoincrement())
+  N_ID_PEDIDO      Int?
+  N_COSTO_DELIVERY Float?
+  X_ENCARGADO      String?   @db.VarChar(100)
+  F_PEDIDO         DateTime? @db.Date
+}
+
+model fit_ingredientes {
+  N_ID_INGREDIENTE     Int                  @id @default(autoincrement())
+  N_ID_UNIDAD_MEDIDA   Int?
+  X_NOMBRE_INGREDIENTE String?              @db.VarChar(100)
+  F_INGRESO            DateTime?            @db.DateTime(0)
+  X_DESCRIPCION        String?              @db.Text
+  N_CANTIDAD           Float?
+  N_COSTO_UNIT         Float?
+  N_CALORIAS           Int?
+  fit_comida_detalle   fit_comida_detalle[]
+  fit_costos           fit_costos[]
+  fit_unidad_medida    fit_unidad_medida?   @relation(fields: [N_ID_UNIDAD_MEDIDA], references: [N_ID_UNIDAD_MEDIDA], onDelete: Restrict, onUpdate: Restrict, map: "fit_ingredientes_ibfk_1")
+
+  @@index([N_ID_UNIDAD_MEDIDA], map: "N_ID_UNIDAD_MEDIDA")
+}
+
+model fit_pago {
+  N_ID_PAGO     Int                     @id @default(autoincrement())
+  N_ID_USUARIO  Int?
+  N_ID_PLAN     Int?
+  N_MONTO       Float?
+  X_METODO_PAGO String?                 @db.VarChar(50)
+  F_PAGO        DateTime?               @db.Date
+  X_ESTADO_PAGO fit_pago_X_ESTADO_PAGO?
+  fit_usuario   fit_usuario?            @relation(fields: [N_ID_USUARIO], references: [N_ID_USUARIO], onDelete: Restrict, onUpdate: Restrict, map: "fit_pago_ibfk_1")
+  fit_plan      fit_plan?               @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Restrict, onUpdate: Restrict, map: "fit_pago_ibfk_2")
+
+  @@index([N_ID_PLAN], map: "N_ID_PLAN")
+  @@index([N_ID_USUARIO], map: "N_ID_USUARIO")
+}
+
+model fit_pedido {
+  N_ID_PEDIDO        Int                         @id @default(autoincrement())
+  F_PEDIDO           DateTime?                   @db.DateTime(0)
+  X_ESTADO_PEDIDO    fit_pedido_X_ESTADO_PEDIDO?
+  X_DIRECCION        String?                     @db.VarChar(255)
+  fit_pedido_detalle fit_pedido_detalle[]
+}
+
+model fit_pedido_detalle {
+  N_ID_DETALLE_PEDIDO Int         @id @default(autoincrement())
+  N_ID_PEDIDO         Int?
+  N_ID_COMIDA         Int?
+  N_CANTIDAD          Int?
+  fit_pedido          fit_pedido? @relation(fields: [N_ID_PEDIDO], references: [N_ID_PEDIDO], onDelete: Restrict, onUpdate: Restrict, map: "fit_pedido_detalle_ibfk_1")
+
+  @@index([N_ID_PEDIDO], map: "N_ID_PEDIDO")
+}
+
+model fit_plan {
+  N_ID_PLAN         Int           @id @default(autoincrement())
+  X_NOMBRE_PLAN     String?       @db.VarChar(100)
+  X_DESCRIPCION     String?       @db.Text
+  N_PRECIO          Float?
+  N_TIEMPO_DURACION Int?
+  fit_pago          fit_pago[]
+  fit_usuario       fit_usuario[]
+}
+
+model fit_unidad_medida {
+  N_ID_UNIDAD_MEDIDA    Int                              @id @default(autoincrement())
+  X_UNIDAD_MEDIDA       String?                          @db.VarChar(50)
+  X_ABREV_UNIDAD_MEDIDA String?                          @db.VarChar(10)
+  X_TIPO_UNIDAD         fit_unidad_medida_X_TIPO_UNIDAD?
+  fit_ingredientes      fit_ingredientes[]
+}
+
+model fit_usuario {
+  N_ID_USUARIO          Int        @id @default(autoincrement())
+  N_ID_PLAN             Int?
+  X_NOMBRE              String    @db.VarChar(100)
+  X_APELLIDO            String    @db.VarChar(100)
+  X_EMAIL               String    @unique @db.VarChar(100)
+  X_CONTRASENA          String    @db.VarChar(100)
+  X_DIRECCION           String?   @db.VarChar(255)
+  X_TELEFONO            String    @db.VarChar(20)
+  F_REGISTRO            DateTime?  @db.DateTime(0)
+  X_SEXO                String?    @db.VarChar(10)
+  X_FECHA_NAC           DateTime?  @db.DateTime(0)
+  X_CODIGO_VERIFICACION String?    @db.VarChar(6)
+  estado_verificacion   Int       @default(0)
+  fit_pago              fit_pago[]
+  fit_plan              fit_plan?  @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Restrict, onUpdate: Restrict, map: "fit_usuario_ibfk_1")
+
+  @@index([N_ID_PLAN], map: "N_ID_PLAN")
+}
+
+enum fit_pedido_X_ESTADO_PEDIDO {
+  Completado
+  Cancelado
+}
+
+enum fit_unidad_medida_X_TIPO_UNIDAD {
+  Masa
+  Volumen
+  Cantidad
+}
+
+enum fit_comida_X_TIPO_COMIDA {
+  Desayuno
+  Almuerzo
+  Cena
+}
+
+enum fit_pago_X_ESTADO_PAGO {
+  Pendiente
+  Completado
+  Fallido
+}
