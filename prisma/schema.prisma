@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -32,14 +32,14 @@ model fit_costos {
   N_ID_COSTO_INGREDIENTE  Int               @id @default(autoincrement())
   N_ID_INGREDIENTE        Int?
   N_ID_DELIVERY           Int?
-  F_REGISTRO              DateTime?         @db.DateTime(0)
+  F_REGISTRO              DateTime?         
   N_COSTO_UNIT            Float?
   N_CANTIDAD              Float?
   N_SUBTOTAL_INGREDIENTES Float?
   N_COSTO_TOTAL           Float?
   fit_ingredientes        fit_ingredientes? @relation(fields: [N_ID_INGREDIENTE], references: [N_ID_INGREDIENTE], onDelete: Restrict, onUpdate: Restrict, map: "fit_costos_ibfk_1")
 
-  @@index([N_ID_INGREDIENTE], map: "N_ID_INGREDIENTE")
+  @@index([N_ID_INGREDIENTE], map: "fit_costos_N_ID_INGREDIENTE")
 }
 
 model fit_delivery {
@@ -54,7 +54,7 @@ model fit_ingredientes {
   N_ID_INGREDIENTE     Int                  @id @default(autoincrement())
   N_ID_UNIDAD_MEDIDA   Int?
   X_NOMBRE_INGREDIENTE String?              @db.VarChar(100)
-  F_INGRESO            DateTime?            @db.DateTime(0)
+  F_INGRESO            DateTime?            
   X_DESCRIPCION        String?              @db.Text
   N_CANTIDAD           Float?
   N_COSTO_UNIT         Float?
@@ -77,13 +77,13 @@ model fit_pago {
   fit_usuario   fit_usuario?            @relation(fields: [N_ID_USUARIO], references: [N_ID_USUARIO], onDelete: Restrict, onUpdate: Restrict, map: "fit_pago_ibfk_1")
   fit_plan      fit_plan?               @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Restrict, onUpdate: Restrict, map: "fit_pago_ibfk_2")
 
-  @@index([N_ID_PLAN], map: "N_ID_PLAN")
+  @@index([N_ID_PLAN], map: "fit_pago_N_ID_PLAN")
   @@index([N_ID_USUARIO], map: "N_ID_USUARIO")
 }
 
 model fit_pedido {
   N_ID_PEDIDO        Int                         @id @default(autoincrement())
-  F_PEDIDO           DateTime?                   @db.DateTime(0)
+  F_PEDIDO           DateTime?                   
   X_ESTADO_PEDIDO    fit_pedido_X_ESTADO_PEDIDO?
   X_DIRECCION        String?                     @db.VarChar(255)
   fit_pedido_detalle fit_pedido_detalle[]
@@ -126,9 +126,9 @@ model fit_usuario {
   X_CONTRASENA          String    @db.VarChar(100)
   X_DIRECCION           String?   @db.VarChar(255)
   X_TELEFONO            String    @db.VarChar(20)
-  F_REGISTRO            DateTime?  @db.DateTime(0)
+  F_REGISTRO            DateTime?  
   X_SEXO                String?    @db.VarChar(10)
-  X_FECHA_NAC           DateTime?  @db.DateTime(0)
+  X_FECHA_NAC           DateTime? 
   X_CODIGO_VERIFICACION String?    @db.VarChar(6)
   estado_verificacion   Int       @default(0)
   fit_pago              fit_pago[]
