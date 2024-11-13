@@ -7,6 +7,7 @@ import morgan from "morgan"
 import cookieParser from "cookie-parser"
 import router from "./routes/auth/user.routes";   
 import profileRouter from "./routes/auth/profile.routes";
+import districRouter from "./routes/auth/utils/distric.routes";
 
 dotenv()
 const app = express()
@@ -23,6 +24,7 @@ app.use(
   router,
 )
 app.use('/profile', profileRouter)
+app.use('/distric', districRouter)
 
 app.listen(3000, () => {
   console.log('Server on port', 3000);
