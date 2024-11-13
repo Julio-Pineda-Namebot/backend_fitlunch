@@ -10,14 +10,14 @@ router.post('/update_profile', async (req, res) => {
         const user = await db.fit_usuario.findUnique({
             where: { X_EMAIL: X_EMAIL },
         });
-
+        const fechaNacimiento = new Date(X_FECHA_NAC);
         await db.fit_usuario.update({
             where: { X_EMAIL: X_EMAIL },
             data: {
                 X_NOMBRE: X_NOMBRE,
                 X_APELLIDO: X_APELLIDO,
                 X_SEXO: X_SEXO,
-                X_FECHA_NAC: new Date(X_FECHA_NAC), 
+                X_FECHA_NAC: fechaNacimiento, 
             }
         });
 
