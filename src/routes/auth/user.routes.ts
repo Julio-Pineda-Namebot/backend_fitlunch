@@ -1,5 +1,5 @@
 import { Router,Request, Response } from "express";
-import { db } from "../db";
+import { db } from "../../db";
 import bcrypt from "bcryptjs";
 import nodemailer from 'nodemailer';
 const cron = require('node-cron');
@@ -99,7 +99,6 @@ router.post("/login" , async (req, res) => {
             X_EMAIL: true,
             X_NOMBRE: true,
             X_APELLIDO: true,
-            X_DIRECCION: true,
             X_TELEFONO: true,
             X_CONTRASENA: true,
             X_FECHA_NAC: true,
@@ -112,7 +111,6 @@ router.post("/login" , async (req, res) => {
             res.status(200).json({
                 name: user.X_NOMBRE,
                 apellido: user.X_APELLIDO,
-                direction: user.X_DIRECCION,
                 email: user.X_EMAIL,
                 telefono: user.X_TELEFONO, 
                 fecha_nac: user.X_FECHA_NAC,
@@ -151,7 +149,6 @@ router.post('/register', async (req, res) => {
         res.status(200).json({
             name: user.X_NOMBRE,
             apellido: user.X_APELLIDO,
-            direction: user.X_DIRECCION,
             email: user.X_EMAIL,
             telefono: user.X_TELEFONO,
             fecha_nac: user.X_FECHA_NAC,

@@ -78,7 +78,7 @@ model fit_pago {
   fit_plan      fit_plan?               @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Restrict, onUpdate: Restrict, map: "fit_pago_ibfk_2")
 
   @@index([N_ID_PLAN], map: "fit_pago_N_ID_PLAN")
-  @@index([N_ID_USUARIO], map: "N_ID_USUARIO")
+  @@index([N_ID_USUARIO], map: "fit_pago_N_ID_USUARIO")
 }
 
 model fit_pedido {
@@ -124,7 +124,6 @@ model fit_usuario {
   X_APELLIDO            String    @db.VarChar(100)
   X_EMAIL               String    @unique @db.VarChar(100)
   X_CONTRASENA          String    @db.VarChar(100)
-  X_DIRECCION           String?   @db.VarChar(255)
   X_TELEFONO            String    @db.VarChar(20)
   F_REGISTRO            DateTime?  
   X_SEXO                String?    @db.VarChar(10)
@@ -133,9 +132,62 @@ model fit_usuario {
   estado_verificacion   Int       @default(0)
   fit_pago              fit_pago[]
   fit_plan              fit_plan?  @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Restrict, onUpdate: Restrict, map: "fit_usuario_ibfk_1")
+  fit_direccion         fit_direccion[]
 
   @@index([N_ID_PLAN], map: "N_ID_PLAN")
 }
+
+model fit_direccion {
+  N_ID_DIRECCION    Int          @id @default(autoincrement())
+  N_ID_USUARIO      Int
+  departamento      Departamento @relation(fields: [departamentoId], references: [id])
+  departamentoId    Int
+  provincia         Provincia    @relation(fields: [provinciaId], references: [id])
+  provinciaId       Int
+  distrito          Distrito     @relation(fields: [distritoId], references: [id])
+  distritoId        Int
+  tipo_calle        String       @db.VarChar(50)
+  numero            String?      @db.VarChar(20)
+  es_trabajo        Boolean
+  es_casa           Boolean
+  telefono_contacto String?      @db.VarChar(20)
+  referencias       String?      @db.Text
+  usuario           fit_usuario  @relation(fields: [N_ID_USUARIO], references: [N_ID_USUARIO], onDelete: Cascade)
+
+  @@index([N_ID_USUARIO], map: "fit_direccion_usuario_idx")
+}
+
+model Distrito {
+  id           Int        @id @default(autoincrement())
+  nombre       String
+  provincia    Provincia  @relation(fields: [provinciaId], references: [id])
+  provinciaId  Int
+
+  direcciones  fit_direccion[] 
+
+  @@unique([nombre, provinciaId])
+}
+
+model Provincia {
+  id             Int          @id @default(autoincrement())
+  nombre         String
+  departamento   Departamento @relation(fields: [departamentoId], references: [id])
+  departamentoId Int
+
+  distritos      Distrito[]   
+  direcciones    fit_direccion[] 
+
+  @@unique([nombre, departamentoId])
+}
+
+model Departamento {
+  id            Int           @id @default(autoincrement())
+  nombre        String        @unique
+
+  provincias    Provincia[]   
+  direcciones   fit_direccion[] 
+}
+
 
 enum fit_pedido_X_ESTADO_PEDIDO {
   Completado

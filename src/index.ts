@@ -5,8 +5,8 @@ import express from "express"
 import helmet from "helmet"
 import morgan from "morgan"
 import cookieParser from "cookie-parser"
-import router from "./routes/user.routes";   
-import profileRouter from "./routes/profile.routes";
+import router from "./routes/auth/user.routes";   
+import profileRouter from "./routes/auth/profile.routes";
 
 dotenv()
 const app = express()
