@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser"
 import router from "./routes/auth/user.routes";   
 import profileRouter from "./routes/auth/profile.routes";
 import districRouter from "./routes/auth/utils/distric.routes";
+import verifyJWT from './middleware';
 
 dotenv()
 const app = express()
@@ -23,7 +24,7 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
 app.use(
   router,
 )
-app.use('/profile', profileRouter)
+app.use('/profile', verifyJWT, profileRouter)
 app.use('/distric', districRouter)
 
 app.listen(3000, () => {

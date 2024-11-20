@@ -3,20 +3,20 @@ import nodemailer from 'nodemailer';
 
 // Función para eliminar usuarios no verificados después de 1 minuto
 export const deleteUnverifiedUsers = async () => {
-    const expirationTime = new Date(Date.now() - 60000);
-    try {
-        await db.fit_usuario.deleteMany({
-            where: {
-                estado_verificacion: 0,
-                F_REGISTRO: {
-                    lt: expirationTime,
-                },
-            },
-        });
-        console.log("Usuarios no verificados eliminados correctamente");
-    } catch (error) {
-        console.error("Error al eliminar usuarios no verificados:", error);
-    }
+  const expirationTime = new Date(Date.now() - 10 * 60 * 1000); 
+  try {
+      await db.fit_usuario.deleteMany({
+          where: {
+              estado_verificacion: 0,
+              F_REGISTRO: {
+                  lt: expirationTime,
+              },
+          },
+      });
+      console.log("Usuarios no verificados eliminados correctamente");
+  } catch (error) {
+      console.error("Error al eliminar usuarios no verificados:", error);
+  }
 };
 
 //GENERACION DE CODIGO

@@ -7,14 +7,14 @@ sendVerificationEmail,
 deleteUnverifiedUsers 
 } 
 from "./utils/authUtils";
+import jwt from 'jsonwebtoken';
+
 const cron = require('node-cron');
 
-
-// Programar la función para que se ejecute cada 10 segundos
-cron.schedule('*/10 * * * * *', deleteUnverifiedUsers);
+cron.schedule('* * * * *', deleteUnverifiedUsers);
 const router = Router();
 
-router.post("/login" , async (req, res) => {
+router.post("/login", async (req, res) => {
     const { X_EMAIL, X_CONTRASENA } = req.body;
     try {
         const user = await db.fit_usuario.findUnique({
@@ -23,6 +23,7 @@ router.post("/login" , async (req, res) => {
             estado_verificacion: 1,
         },
         select: {
+            N_ID_USUARIO : true,
             X_EMAIL: true,
             X_NOMBRE: true,
             X_APELLIDO: true,
@@ -34,14 +35,11 @@ router.post("/login" , async (req, res) => {
         });
 
         if (user && await bcrypt.compare(X_CONTRASENA, user.X_CONTRASENA)) {
+            const token = jwt.sign({ userId: user.N_ID_USUARIO }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' }); 
             const { X_CONTRASENA, ...userData } = user;
             res.status(200).json({
-                name: user.X_NOMBRE,
-                apellido: user.X_APELLIDO,
-                email: user.X_EMAIL,
-                telefono: user.X_TELEFONO, 
-                fecha_nac: user.X_FECHA_NAC,
-                sexo: user.X_SEXO,
+                ...userData,
+                token,
             });
         } else {
             res.status(401).json({ message: "Correo o contraseña incorrectos" });
@@ -72,8 +70,10 @@ router.post('/register', async (req, res) => {
                 estado_verificacion: 0,
             
         }});
+
         await sendVerificationEmail(X_EMAIL, verificationCode, X_NOMBRE, 'registro');
         res.status(200).json({
+            id: user.N_ID_USUARIO,
             name: user.X_NOMBRE,
             apellido: user.X_APELLIDO,
             email: user.X_EMAIL,
@@ -100,7 +100,8 @@ router.post('/verify_code', async (req, res) => {
                 where: { X_EMAIL },
                 data: { estado_verificacion: 1 },
             }); 
-            res.json({ message: 'Código verificado correctamente' });
+            const token = jwt.sign({ userId: user.N_ID_USUARIO }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' });
+            res.json({ message: 'Código verificado correctamente', token });
         } else {
             res.status(400).json({ message: 'Código de verificación incorrecto' });
         }
@@ -120,7 +121,7 @@ router.post('/resend_code', async (req, res) => {
                 X_NOMBRE: true,
             }
         });
-
+        
         const newVerificationCode = generateVerificationCode();
 
         await db.fit_usuario.update({
