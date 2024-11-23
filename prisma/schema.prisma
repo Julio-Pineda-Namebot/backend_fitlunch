@@ -140,6 +140,7 @@ model fit_usuario {
 model fit_direccion {
   N_ID_DIRECCION    Int          @id @default(autoincrement())
   N_ID_USUARIO      Int
+  nombre            String?      @db.VarChar(50)
   departamento      Departamento @relation(fields: [departamentoId], references: [id])
   departamentoId    Int
   provincia         Provincia    @relation(fields: [provinciaId], references: [id])
@@ -147,11 +148,12 @@ model fit_direccion {
   distrito          Distrito     @relation(fields: [distritoId], references: [id])
   distritoId        Int
   tipo_calle        String       @db.VarChar(50)
+  nombre_calle      String       @db.VarChar(100)
   numero            String?      @db.VarChar(20)
-  es_trabajo        Boolean
-  es_casa           Boolean
-  telefono_contacto String?      @db.VarChar(20)
-  referencias       String?      @db.Text
+  piso_departamento String?      @db.VarChar(50)
+  tipo_direccion    String       @db.VarChar(10)
+  telefono_contacto String       @db.VarChar(20)
+  referencias       String?      @db.VarChar(120)
   usuario           fit_usuario  @relation(fields: [N_ID_USUARIO], references: [N_ID_USUARIO], onDelete: Cascade)
 
   @@index([N_ID_USUARIO], map: "fit_direccion_usuario_idx")

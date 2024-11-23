@@ -38,7 +38,12 @@ router.post("/login", async (req, res) => {
             const token = jwt.sign({ userId: user.N_ID_USUARIO }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' }); 
             const { X_CONTRASENA, ...userData } = user;
             res.status(200).json({
-                ...userData,
+                name: user.X_NOMBRE,
+                apellido: user.X_APELLIDO,
+                email: user.X_EMAIL,
+                telefono: user.X_TELEFONO, 
+                fecha_nac: user.X_FECHA_NAC,
+                sexo: user.X_SEXO,
                 token,
             });
         } else {
@@ -73,13 +78,7 @@ router.post('/register', async (req, res) => {
 
         await sendVerificationEmail(X_EMAIL, verificationCode, X_NOMBRE, 'registro');
         res.status(200).json({
-            id: user.N_ID_USUARIO,
-            name: user.X_NOMBRE,
-            apellido: user.X_APELLIDO,
-            email: user.X_EMAIL,
-            telefono: user.X_TELEFONO,
-            fecha_nac: user.X_FECHA_NAC,
-            sexo: user.X_SEXO,
+            message: 'Registro exitoso. Verifica tu correo electrónico.',
         });
     } catch (error) {
         console.error("Error en el registro:", error);
@@ -93,6 +92,16 @@ router.post('/verify_code', async (req, res) => {
     try {
         const user = await db.fit_usuario.findUnique({
             where: { X_EMAIL },
+            select: {
+                N_ID_USUARIO: true,
+                X_NOMBRE: true,
+                X_APELLIDO: true,
+                X_EMAIL: true,
+                X_TELEFONO: true,
+                X_FECHA_NAC: true,
+                X_SEXO: true,
+                X_CODIGO_VERIFICACION: true,
+            },
         });
 
         if (user && user.X_CODIGO_VERIFICACION === X_CODIGO_VERIFICACION) {
@@ -101,7 +110,18 @@ router.post('/verify_code', async (req, res) => {
                 data: { estado_verificacion: 1 },
             }); 
             const token = jwt.sign({ userId: user.N_ID_USUARIO }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' });
-            res.json({ message: 'Código verificado correctamente', token });
+            res.status(200).json({
+                message: 'Verificación exitosa',
+                token,
+                user: {
+                    name: user.X_NOMBRE,
+                    apellido: user.X_APELLIDO,
+                    email: user.X_EMAIL,
+                    telefono: user.X_TELEFONO,
+                    fecha_nac: user.X_FECHA_NAC,
+                    sexo: user.X_SEXO,
+                },
+            });
         } else {
             res.status(400).json({ message: 'Código de verificación incorrecto' });
         }

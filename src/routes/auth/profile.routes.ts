@@ -10,7 +10,7 @@ router.post("/update_profile", async (req: any, res) => {
     const user = await db.fit_usuario.findUnique({
       where: { N_ID_USUARIO: req.user.userId }
     })
-    const fechaNacimiento = new Date(X_FECHA_NAC)
+    const fechaNacimiento = X_FECHA_NAC && X_FECHA_NAC.trim() !== "" ? new Date(X_FECHA_NAC) : null;
     await db.fit_usuario.update({
       where: { N_ID_USUARIO: req.user.userId },
       data: {
@@ -21,7 +21,6 @@ router.post("/update_profile", async (req: any, res) => {
         X_FECHA_NAC: fechaNacimiento
       }
     })
-
     res.status(200).json({ message: "Perfil actualizado correctamente" })
   } catch (error) {
     console.error("Error al actualizar el perfil:", error)
@@ -29,18 +28,20 @@ router.post("/update_profile", async (req: any, res) => {
   }
 })
 
-router.post("add_addres", async (req: any, res) => {
+router.post("/add_addres", async (req: any, res) => {
   const {
     departamentoId,
     provinciaId,
     distritoId,
+    nombre,
     tipo_calle,
+    nombre_calle,
     numero,
-    es_trabajo,
-    es_casa,
+    piso_departamento,
+    tipo_direccion, 
     telefono_contacto,
-    referencias
-  } = req.body
+    referencias,
+  } = req.body;
 
   const N_ID_USUARIO = req.user.userId
 
@@ -48,16 +49,18 @@ router.post("add_addres", async (req: any, res) => {
     const newAddress = await db.fit_direccion.create({
       data: {
         N_ID_USUARIO,
+        nombre,
         departamentoId,
         provinciaId,
         distritoId,
         tipo_calle,
-        numero,
-        es_trabajo,
-        es_casa,
+        nombre_calle,
+        numero: numero || null, 
+        piso_departamento: piso_departamento || null, 
+        tipo_direccion,
         telefono_contacto,
-        referencias
-      }
+        referencias: referencias || null,
+      },
     })
 
     res.status(201).json({
@@ -76,13 +79,15 @@ router.put("/update_address/:id", async (req, res) => {
     departamentoId,
     provinciaId,
     distritoId,
+    nombre,
     tipo_calle,
+    nombre_calle,
     numero,
-    es_trabajo,
-    es_casa,
+    piso_departamento,
+    tipo_direccion, 
     telefono_contacto,
-    referencias
-  } = req.body
+    referencias,
+  } = req.body;
 
   try {
     const address = await db.fit_direccion.update({
@@ -91,13 +96,15 @@ router.put("/update_address/:id", async (req, res) => {
         departamentoId,
         provinciaId,
         distritoId,
+        nombre,
         tipo_calle,
-        numero,
-        es_trabajo,
-        es_casa,
+        nombre_calle,
+        numero: numero || null, 
+        piso_departamento: piso_departamento || null,
+        tipo_direccion,
         telefono_contacto,
-        referencias
-      }
+        referencias: referencias || null,
+      },
     })
 
     res
