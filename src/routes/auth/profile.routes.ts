@@ -62,7 +62,6 @@ router.post("/add_addres", async (req: any, res) => {
         referencias: referencias || null,
       },
     })
-
     res.status(201).json({
       message: "Dirección agregada correctamente",
       address: newAddress
@@ -126,7 +125,6 @@ router.get("/get_addresses", async (req: any, res) => {
         distrito: true
       }
     })
-
     res.status(200).json({ addresses })
   } catch (error) {
     console.error("Error al obtener las direcciones:", error)

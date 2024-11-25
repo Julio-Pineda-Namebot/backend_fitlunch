@@ -1,5 +1,6 @@
 import { Router,Request, Response } from "express";
 import { db } from "../../../db";
+import { log } from "console";
 
 const router = Router();
 
