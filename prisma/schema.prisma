@@ -12,8 +12,11 @@ model fit_comida {
   X_NOMBRE_COMIDA    String?                   @db.VarChar(100)
   X_DESCRIPCION      String?                   @db.Text
   N_CALORIAS         Int?
+  X_IMG              String?
   X_TIPO_COMIDA      fit_comida_X_TIPO_COMIDA?
   fit_comida_detalle fit_comida_detalle[]
+  fit_plan_comida_dia fit_plan_comida_dia[] // Relación con fit_plan_comida_dia
+  fit_horario_comida  fit_horario_comida[]  // Relación con fit_horario_comida
 }
 
 model fit_comida_detalle {
@@ -83,10 +86,16 @@ model fit_pago {
 
 model fit_pedido {
   N_ID_PEDIDO        Int                         @id @default(autoincrement())
+  N_ID_USUARIO       Int
+  N_ID_DIRECCION     Int
   F_PEDIDO           DateTime?                   
   X_ESTADO_PEDIDO    fit_pedido_X_ESTADO_PEDIDO?
-  X_DIRECCION        String?                     @db.VarChar(255)
   fit_pedido_detalle fit_pedido_detalle[]
+  fit_usuario        fit_usuario?                @relation(fields: [N_ID_USUARIO], references: [N_ID_USUARIO], onDelete: Cascade)
+  fit_direccion      fit_direccion               @relation(fields: [N_ID_DIRECCION], references: [N_ID_DIRECCION])
+  
+  @@index([N_ID_USUARIO], map: "fit_pedido_N_ID_USUARIO")
+  @@map("fit_pedido")
 }
 
 model fit_pedido_detalle {
@@ -105,8 +114,55 @@ model fit_plan {
   X_DESCRIPCION     String?       @db.Text
   N_PRECIO          Float?
   N_TIEMPO_DURACION Int?
+  X_IMAGE           String?
+  fit_images        fit_image[]
   fit_pago          fit_pago[]
   fit_usuario       fit_usuario[]
+  fit_plan_comida_dia fit_plan_comida_dia[] // Relación con fit_plan_comida_dia
+  fit_plan_comida_tipo fit_plan_comida_tipo[] // Relación con fit_plan_comida_tipo
+}
+
+model fit_image {
+  N_ID_IMAGE        Int           @id @default(autoincrement())
+  X_URL             String        @db.Text
+  fit_plan          fit_plan?     @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN])
+  N_ID_PLAN         Int?
+}
+
+model fit_plan_comida_dia {
+  N_ID_PLAN_COMIDA_DIA Int       @id @default(autoincrement())
+  N_ID_PLAN            Int
+  N_ID_COMIDA          Int
+  X_DIA                String    @db.VarChar(20)
+
+  fit_plan             fit_plan  @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Cascade)
+  fit_comida           fit_comida @relation(fields: [N_ID_COMIDA], references: [N_ID_COMIDA], onDelete: Cascade)
+
+  @@index([N_ID_PLAN], map: "fit_plan_comida_dia_plan")
+  @@index([N_ID_COMIDA], map: "fit_plan_comida_dia_comida")
+}
+
+model fit_horario_comida {
+  N_ID_SCHEDULE  Int       @id @default(autoincrement())
+  N_ID_USUARIO   Int
+  F_FECHA        DateTime
+  N_ID_COMIDA    Int
+
+  fit_usuario    fit_usuario @relation(fields: [N_ID_USUARIO], references: [N_ID_USUARIO], onDelete: Cascade)
+  fit_comida     fit_comida  @relation(fields: [N_ID_COMIDA], references: [N_ID_COMIDA], onDelete: Cascade)
+
+  @@index([N_ID_USUARIO], map: "fit_horario_comida_usuario")
+  @@index([N_ID_COMIDA], map: "fit_horario_comida_comida")
+}
+
+model fit_plan_comida_tipo {
+  N_ID_PLAN_COMIDA_TIPO Int       @id @default(autoincrement())
+  N_ID_PLAN             Int
+  X_TIPO_COMIDA         fit_comida_X_TIPO_COMIDA
+
+  fit_plan              fit_plan @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Cascade)
+
+  @@index([N_ID_PLAN], map: "fit_plan_comida_tipo_plan")
 }
 
 model fit_unidad_medida {
@@ -127,12 +183,15 @@ model fit_usuario {
   X_TELEFONO            String    @db.VarChar(20)
   F_REGISTRO            DateTime?  
   X_SEXO                String?    @db.VarChar(10)
-  X_FECHA_NAC           DateTime? 
+  X_FECHA_NAC           DateTime?
+  F_FECHA_FIN_PLAN      DateTime? 
   X_CODIGO_VERIFICACION String?    @db.VarChar(6)
   estado_verificacion   Int       @default(0)
   fit_pago              fit_pago[]
   fit_plan              fit_plan?  @relation(fields: [N_ID_PLAN], references: [N_ID_PLAN], onDelete: Restrict, onUpdate: Restrict, map: "fit_usuario_ibfk_1")
   fit_direccion         fit_direccion[]
+  fit_horario_comida    fit_horario_comida[] // Relación con fit_horario_comida
+  fit_pedido            fit_pedido[]
 
   @@index([N_ID_PLAN], map: "N_ID_PLAN")
 }
@@ -155,8 +214,10 @@ model fit_direccion {
   telefono_contacto String       @db.VarChar(20)
   referencias       String?      @db.VarChar(120)
   usuario           fit_usuario  @relation(fields: [N_ID_USUARIO], references: [N_ID_USUARIO], onDelete: Cascade)
+  fit_pedido      fit_pedido[]
 
   @@index([N_ID_USUARIO], map: "fit_direccion_usuario_idx")
+  @@map("fit_direccion")
 }
 
 model Distrito {
@@ -204,8 +265,10 @@ enum fit_unidad_medida_X_TIPO_UNIDAD {
 
 enum fit_comida_X_TIPO_COMIDA {
   Desayuno
+  Ensalada
   Almuerzo
   Cena
+  Snacks
 }
 
 enum fit_pago_X_ESTADO_PAGO {
