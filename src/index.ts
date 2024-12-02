@@ -17,6 +17,7 @@ import paymentRouter from './routes/components/payment/payment.routes';
 
 import verifyJWT from './middleware';
 
+
 dotenv()
 const app = express()
 app.use(express.json())
@@ -28,6 +29,10 @@ app.use(morgan("common"))
 app.use(bodyParser.json({ limit: "30mb" }))
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
 
+app.listen(3000, () => {
+  console.log('Server on port', 3000);
+});
+
 app.use(router);
 app.use('/profile', verifyJWT, profileRouter);
 app.use('/delete',verifyJWT, deleteRouter);
@@ -37,8 +42,4 @@ app.use('/distric', districRouter);
 app.use('/food', verifyJWT, foodRoute);
 app.use('/payment', verifyJWT, paymentRouter);
 app.use('/order', verifyJWT, orderRoute);
-
-app.listen(3000, () => {
-  console.log('Server on port', 3000);
-});
 
