@@ -17,6 +17,7 @@ model fit_comida {
   fit_comida_detalle fit_comida_detalle[]
   fit_plan_comida_dia fit_plan_comida_dia[] // Relación con fit_plan_comida_dia
   fit_horario_comida  fit_horario_comida[]  // Relación con fit_horario_comida
+  fit_pedido_detalle  fit_pedido_detalle[]
 }
 
 model fit_comida_detalle {
@@ -104,6 +105,7 @@ model fit_pedido_detalle {
   N_ID_COMIDA         Int?
   N_CANTIDAD          Int?
   fit_pedido          fit_pedido? @relation(fields: [N_ID_PEDIDO], references: [N_ID_PEDIDO], onDelete: Restrict, onUpdate: Restrict, map: "fit_pedido_detalle_ibfk_1")
+  fit_comida          fit_comida? @relation(fields: [N_ID_COMIDA], references: [N_ID_COMIDA])
 
   @@index([N_ID_PEDIDO], map: "N_ID_PEDIDO")
 }
