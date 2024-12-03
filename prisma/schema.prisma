@@ -255,6 +255,8 @@ model Departamento {
 
 
 enum fit_pedido_X_ESTADO_PEDIDO {
+  Enruta
+  Preparando
   Completado
   Pendiente
   Cancelado

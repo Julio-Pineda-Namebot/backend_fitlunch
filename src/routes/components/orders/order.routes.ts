@@ -137,4 +137,38 @@ router.post("/filterpedido", async (req: any, res, next: NextFunction) => {
     }
 });
 
+router.post('/ordersrout', async (req: any, res) => {
+  try {
+    const orders = await db.fit_pedido.findMany({
+      where: { N_ID_USUARIO: req.user.userId },
+      include: {
+        fit_pedido_detalle: {
+          include: {
+            fit_comida: true, 
+          },
+        },
+      },
+      orderBy: {
+        F_PEDIDO: 'desc', 
+      },
+    });
+
+    const transformedOrders = orders.map((order) => ({
+      id: order.N_ID_PEDIDO,
+      status: order.X_ESTADO_PEDIDO,
+      items: order.fit_pedido_detalle.map((item) => ({
+        name: item.fit_comida?.X_NOMBRE_COMIDA,
+        image: item.fit_comida?.X_IMG,
+        // ... other details you need 
+      })),
+      // ... (add other relevant order data)
+    }));
+
+    res.json(transformedOrders); 
+  } catch (error) {
+    console.error("Error al obtener los pedidos:", error);
+    res.status(500).json({ error: "Error al obtener los pedidos" });
+}
+});
+
 export default router;
