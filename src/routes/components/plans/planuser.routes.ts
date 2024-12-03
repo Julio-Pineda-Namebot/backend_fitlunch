@@ -67,4 +67,41 @@ router.post('/cancel-plan', async (req: any, res) => {
 //     }
 // });
 
+
+router.get("/plan-details", async (req: any, res) => {
+    try {
+        const user = await db.fit_usuario.findUnique({
+            where: { N_ID_USUARIO: req.user.userId },
+            include: { fit_plan: true }, 
+        });
+
+        if (user && user.fit_plan && user.F_FECHA_FIN_PLAN) { // Verificar si hay plan y fecha de fin
+            const plan = user.fit_plan;
+            const timeRemaining = calculateTimeRemaining(user.F_FECHA_FIN_PLAN); 
+
+            res.status(200).json({
+                planTitle: plan.X_NOMBRE_PLAN,
+                planImage: plan.X_IMAGE,
+                planDescription: plan.X_DESCRIPCION,
+                planDuration: plan.N_TIEMPO_DURACION,
+                timeRemaining: timeRemaining,
+            });
+        } else {
+            // O puedes usar:
+            res.status(404).json({ message: "No active plan found." });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+function calculateTimeRemaining(planEndDate: Date): number { // Cambiar el tipo a Date
+    const now = new Date();
+    const timeDiff = planEndDate.getTime() - now.getTime();
+    const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); 
+
+    return daysRemaining;
+}
+
 export default router;

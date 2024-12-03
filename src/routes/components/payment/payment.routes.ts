@@ -54,11 +54,28 @@ router.post('/confirm-payment', async (req: any, res) => {
         },
         data: { X_ESTADO_PAGO: 'Completado' },
       });
+      
+      const plan = await db.fit_plan.findUnique({ 
+        where: { N_ID_PLAN: planId },
+      }); 
+
+      if (!plan || plan.N_TIEMPO_DURACION === null || plan.N_TIEMPO_DURACION === undefined) {
+        console.error("Plan no encontrado o duración no definida");
+        res.status(500).json({ message: "Error al asignar el plan" });
+        return;
+      }
+
+      const planDurationDays = plan?.N_TIEMPO_DURACION;
+      const planEndDate = new Date();
+      planEndDate.setDate(planEndDate.getDate() + planDurationDays);
 
       // Asignar el plan al usuario
       await db.fit_usuario.update({
         where: { N_ID_USUARIO: req.user.userId },
-        data: { N_ID_PLAN: planId },
+        data: { 
+          N_ID_PLAN: planId,
+          F_FECHA_FIN_PLAN: planEndDate,
+        },
       });
 
       res.status(200).json({ message: 'Pago confirmado y plan asignado' });

@@ -42,7 +42,7 @@ router.post("/make_order", async (req: any, res: any, next: NextFunction) => {
                 N_ID_USUARIO: req.user.userId,
                 F_PEDIDO: new Date(),
                 N_ID_DIRECCION: N_ID_DIRECCION,
-                X_ESTADO_PEDIDO: "Completado",
+                X_ESTADO_PEDIDO: "Pendiente",
                 fit_pedido_detalle: {
                     create: {
                         N_ID_COMIDA: mealId,
